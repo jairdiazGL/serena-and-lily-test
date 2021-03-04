@@ -1,4 +1,4 @@
-import { getElementById, appendChild, createElement, addClassList } from "./dom-methods.js";
+import { getElementById, appendChild, createElement, addClassList, removeChild } from "./utils/dom-methods.js";
 import { purchaseConfig, salesConfig } from "./config.js";
 
 
@@ -33,26 +33,19 @@ const renderSales = () => {
     })
 }
 
-const startAllocate = () => {
-
-    //clean dom
-
-    // take 1 sale 
-    // take purchases until purchase quantity is equal or greater than 
-}
-
-
 const createAllocateButton = () => {
     const btnContainer = getElementById("btn-container");
     const button = createElement("button");
+    button.setAttribute("id", "btn-allocate")
     button.textContent = "Allocate"
     addClassList(["btn", "btn-primary", "btn-lg"], button)
     button.addEventListener('click', () => {
-        startAllocate();
+        window.location.href = "/pages/allocate/index.html"
     });
 
     btnContainer.appendChild(button);
 }
+
 
 
 renderPurchases();

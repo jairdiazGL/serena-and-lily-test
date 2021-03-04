@@ -1,7 +1,7 @@
 import { orderByDate } from "./utils/index.js";
 import purchaseOrders from "./data/purchases.js";
 import salesOrders from "./data/sales.js";
-import { createElement, addClassList, appendChild } from "./dom-methods.js";
+import { createElement, addClassList, appendChild } from "./utils/dom-methods.js";
 
 export const generalMethods = (panelClasses = []) => {
     return {
@@ -28,7 +28,6 @@ export const generalMethods = (panelClasses = []) => {
 export const purchaseConfig = {
     id: "purchases-section",
     sectionName: "Purchases",
-    keys: ["id", "receiving", "quantity"],
     data: orderByDate({ data: purchaseOrders, orderBy: 'receiving' }),
     methods: generalMethods(["panel", "panel-info"])
 };
@@ -36,7 +35,6 @@ export const purchaseConfig = {
 export const salesConfig = {
     id: "sales-section",
     sectionName: "Sales",
-    keys: ["id", "created", "quantity"],
     data: orderByDate({ data: salesOrders, orderBy: 'created' }),
     methods: generalMethods(["panel", "panel-success"])
 }
