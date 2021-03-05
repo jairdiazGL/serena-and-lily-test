@@ -61,7 +61,7 @@ export const salesConfig = {
     messages: {
         header: (id, code) => {
             const customMessages = {
-                ASSIGNED: `Supplying sale with identifier ${id}`,
+                ASSIGNED: `Delivering sale with identifier ${id}`,
                 NO_STOCK: `Sale with identifier ${id} is waiting for purchases`
             };
 
