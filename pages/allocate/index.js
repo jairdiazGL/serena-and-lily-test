@@ -1,4 +1,5 @@
 import { buildSaleResponse } from "../../utils/index.js";
+import { getElementById, appendChild, createElement } from "../../utils/dom-methods.js";
 import { purchaseConfig, salesConfig } from "../../config.js";
 
 const enableLogs = false;
@@ -15,7 +16,7 @@ const receivePurchase = (currentSale, lastPurchase = {}) => {
     const isStockNotEnough = stock < currentSale.quantity;
 
     let currentPurchase = lastPurchase;
-    if(purchases.length && isStockNotEnough){
+    if (purchases.length && isStockNotEnough) {
         currentPurchase = purchases.shift();
         stock += currentPurchase.quantity;
         processStack.push({ ...currentPurchase, type: "purchase" });
@@ -29,17 +30,12 @@ const receivePurchase = (currentSale, lastPurchase = {}) => {
 
     stock -= currentSale.quantity;
 
-    return buildSaleResponse({ 
-        currentSale, 
-        supplyDate: currentPurchase.receiving, 
-        code: "ASSIGNED", 
-        lastPurchase: currentPurchase 
+    return buildSaleResponse({
+        currentSale,
+        supplyDate: currentPurchase.receiving,
+        code: "ASSIGNED",
+        lastPurchase: currentPurchase
     })
-}
-
-const render = () => {
-    allocate();
-    console.log(processStack);
 };
 
 const allocate = (currentPurchase) => {
@@ -61,7 +57,38 @@ const allocate = (currentPurchase) => {
     }
 
     allocate(lastPurchase);
-}
+};
 
+const render = () => {
+    const types = {
+        purchase: purchaseConfig,
+        sale: salesConfig
+    };
 
+    for (let index = 0; index < processStack.length; index++) {
+        const element = processStack[index];
+        const newPanelConfig = types[element.type];
+        if (!newPanelConfig) continue;
+
+        const container = getElementById("allocate-section");
+
+        const div = createElement("div");
+        div.className = "col-md-3";
+
+        const panel = newPanelConfig.methods.buildPanel();
+
+        const headerText = newPanelConfig.messages.header(element.id, element.code)
+        const bodyText = newPanelConfig.messages.body(element, element.code);
+
+        newPanelConfig.methods.buildHeading(panel, headerText);
+        newPanelConfig.methods.buildBody(panel, bodyText);
+        newPanelConfig.methods.buildFooter(panel, index+1);
+
+       
+        appendChild(div, panel)
+        appendChild(container, div)
+    }
+
+};
+allocate();
 render();
