@@ -18,4 +18,9 @@ export default [{
     id: "P5",
     receiving: "2020-02-20",
     quantity: 7
+},
+{
+    id: "P6",
+    receiving: "2020-02-21",
+    quantity: 10
 }]

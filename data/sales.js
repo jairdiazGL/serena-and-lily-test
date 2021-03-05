@@ -18,6 +18,15 @@ export default [{
     id: "S5",
     created: "2019-12-15",
     quantity: 9
+},{
+    id: "S7",
+    created: "2020-01-20",
+    quantity: 2
+}, 
+{
+    id: "S8",
+    created: "2020-01-20",
+    quantity: 2
 }];
 
 

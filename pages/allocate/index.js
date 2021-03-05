@@ -1,47 +1,67 @@
+import { buildSaleResponse } from "../../utils/index.js";
 import { purchaseConfig, salesConfig } from "../../config.js";
 
+const enableLogs = false;
 
 const purchases = purchaseConfig.data;
-const receivedPurchase = [];
+let stock = 0;
 
 const sales = salesConfig.data;
-let currentSale = sales.shift();
 const assignedSales = [];
 
-let stock = 0;
-let processing = false;
+let processStack = [];
 
-const getPurchase = () => {
-    const currentPurchase = purchases.shift();
-    stock += currentPurchase.quantity;
-    console.log("Current stock ...    ", stock)
-    return currentPurchase;
+const receivePurchase = (currentSale, lastPurchase = {}) => {
+    const isStockNotEnough = stock < currentSale.quantity;
+
+    let currentPurchase = lastPurchase;
+    if(purchases.length && isStockNotEnough){
+        currentPurchase = purchases.shift();
+        stock += currentPurchase.quantity;
+        processStack.push({ ...currentPurchase, type: "purchase" });
+    }
+
+    if (isStockNotEnough && !purchases.length)
+        return buildSaleResponse({ currentSale, lastPurchase: currentPurchase });
+
+    if (isStockNotEnough)
+        return receivePurchase(currentSale, currentPurchase);
+
+    stock -= currentSale.quantity;
+
+    return buildSaleResponse({ 
+        currentSale, 
+        supplyDate: currentPurchase.receiving, 
+        code: "ASSIGNED", 
+        lastPurchase: currentPurchase 
+    })
+}
+
+const render = () => {
+    allocate();
+    console.log(processStack);
 };
 
-const shouldGoNextSale = (currentPurchase) => {
-    if (currentSale && stock >= currentSale.quantity) {
-        stock -= currentSale.quantity;
-        const assignedSale = { ...currentSale, expectedDate: currentPurchase.receiving }
-        console.log("assigning sale  ...", currentPurchase.receiving, currentSale.quantity, stock)
-        assignedSales.push(assignedSale);
-        currentSale = purchases.length && sales.shift();
+const allocate = (currentPurchase) => {
+    enableLogs && console.info("Getting sale .....");
+    const currentSale = sales.shift();
+    enableLogs && console.info("Processing sale with identifier: ", currentSale.id);
+    const { lastPurchase, sale } = receivePurchase(currentSale, currentPurchase);
+    processStack.push({ ...sale, type: "sale" })
+    enableLogs && console.info("Assigning expected supply date: ", sale.id, sale.supplyDate);
+    assignedSales.push(sale)
+    if (!sales.length) {
+        stock = purchases.reduce((currentStock, nextPurchase) => {
+            processStack.push({ ...nextPurchase, type: "purchase" })
+            return currentStock + nextPurchase.quantity
+        }, stock);
+
+        enableLogs && console.info("No more sales to process ... ");
+        return;
     }
+
+    allocate(lastPurchase);
 }
 
 
-const allocate = () => {
-    processing = true;
-    const currentPurchase = getPurchase();
-    shouldGoNextSale(currentPurchase);
-    receivedPurchase.push(currentPurchase);
-    if (purchases.length) {
-        setTimeout(() => allocate(), 3000);
-    } else if (sales.length) {
-        console.log("Purchases are not enought to cover all sales");
-        sales.forEach(({ id, quantity, created }) => {
-            console.log(`Pending ...  Identifier: ${id} - created: ${created} - quantity: ${quantity}`)
-        })
-    }
-}
-
-allocate();
+render();

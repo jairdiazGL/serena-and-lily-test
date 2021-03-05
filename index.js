@@ -1,4 +1,4 @@
-import { getElementById, appendChild, createElement, addClassList, removeChild } from "./utils/dom-methods.js";
+import { getElementById, appendChild, createElement, addClassList } from "./utils/dom-methods.js";
 import { purchaseConfig, salesConfig } from "./config.js";
 
 
@@ -45,8 +45,6 @@ const createAllocateButton = () => {
 
     btnContainer.appendChild(button);
 }
-
-
 
 renderPurchases();
 renderSales();

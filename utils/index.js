@@ -1,14 +1,24 @@
 export const orderByDate = ({ data = [], orderBy = '', sort = "asc" }) => {
-    const sortedArray = data.sort((date, nextDate ) => {
-        return new Date(date[orderBy]) - new Date(nextDate[orderBy]);
+    const sortedArray = data.sort((item, nextItem) => {
+        return new Date(item[orderBy]) - new Date(nextItem[orderBy])
     });
 
-    if(sort === 'desc') return sortedArray.reverse();
+    if (sort === 'desc') return sortedArray.reverse();
     return sortedArray;
 };
 
-
-export const allocate = ({ salesOrders = [], purchaseOrders = [] }) => {
-
-
+export const buildSaleResponse = ({
+    lastPurchase = {},
+    currentSale = {},
+    code = "NO_STOCK",
+    supplyDate = "N/A"
+}) => {
+    return {
+        lastPurchase,
+        sale: {
+            ...currentSale,
+            code,
+            supplyDate
+        }
+    }
 };
