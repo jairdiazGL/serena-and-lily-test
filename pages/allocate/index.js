@@ -59,36 +59,44 @@ const allocate = (currentPurchase) => {
     allocate(lastPurchase);
 };
 
+let index = 1;
+
 const render = () => {
     const types = {
         purchase: purchaseConfig,
         sale: salesConfig
     };
 
-    for (let index = 0; index < processStack.length; index++) {
-        const element = processStack[index];
-        const newPanelConfig = types[element.type];
-        if (!newPanelConfig) continue;
+    const element = processStack.shift();
+    const newPanelConfig = types[element.type];
 
-        const container = getElementById("allocate-section");
+    const container = getElementById("allocate-section");
 
-        const div = createElement("div");
-        div.className = "col-md-3";
+    const div = createElement("div");
+    div.className = "col-md-3";
 
-        const panel = newPanelConfig.methods.buildPanel();
+    const panel = newPanelConfig.methods.buildPanel();
 
-        const headerText = newPanelConfig.messages.header(element.id, element.code)
-        const bodyText = newPanelConfig.messages.body(element, element.code);
+    const headerText = newPanelConfig.messages.header(element.id, element.code)
+    const bodyText = newPanelConfig.messages.body(element, element.code);
 
-        newPanelConfig.methods.buildHeading(panel, headerText);
-        newPanelConfig.methods.buildBody(panel, bodyText);
-        newPanelConfig.methods.buildFooter(panel, index+1);
+    newPanelConfig.methods.buildHeading(panel, headerText);
+    newPanelConfig.methods.buildBody(panel, bodyText);
+    newPanelConfig.methods.buildFooter(panel, index);
 
-       
-        appendChild(div, panel)
-        appendChild(container, div)
-    }
+
+    appendChild(div, panel)
+    appendChild(container, div)
+
+    index++;
+
+    if (!processStack.length) return true;
 
 };
+
 allocate();
-render();
+
+const intervalRender = setInterval(() => {
+    const emptyStack = render();
+    if (emptyStack) return clearInterval(intervalRender)
+}, 1000);
